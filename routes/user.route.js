@@ -1,15 +1,21 @@
 let express = require("express");
-const { userController } = require("../controllers");
-let validate = require("../middleware/validate");
-const { userValidation } = require("../validation");
-const { isLoging } = require("../middleware/auth");
+const { userController, authController } = require("../controllers");
 
 let route = express();
 
-route.post("/create", validate(userValidation.user), userController.postUser);
-route.post("/login", userController.login)
-route.get("/get", userController.getAllUser);
-route.delete("/delete/:id", userController.deleteUSer);
-route.put("/update/:id", validate(userValidation.user), userController.updateUser)
+route.post("/signup", authController.signup);
+route.post("/login", authController.login);
+route.get(
+  "/get",
+  authController.protect,
+  authController.restrictTo("admin"),
+  userController.getAllUser
+);
+route.post("/forgotPassword", authController.forgotPassword);
+route.patch("/resetPassword/:token", authController.resetPassword);
+route.patch('/updatePassword',authController.protect,authController.updatePassword)
 
-module.exports = route
+route.delete("/delete/:id", userController.deleteUSer);
+route.put("/update/:id", userController.updateUser);
+
+module.exports = route;

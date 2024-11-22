@@ -1,32 +1,31 @@
 require("dotenv").config();
-let express = require("express");
-let http = require("http");
-const dbConnect = require("./db/dbConnect");
-const routes = require("./routes");
-let cors = require("cors");
-const cookieParser = require("cookie-parser");
-const staticRoute = require("./routes/static.route")
+const mongoose = require("mongoose");
+process.on("uncaughtException", (err) => {
+  console.log("UNCAUGHT EXCEPTION! Shutting down...");
+  console.log(err.name, err.message);
+  process.exit(1);
+});
+const app = require("./app");
+// let cors = require("cors");
 
-let app = express();
-app.use(cors({
-    origin: "http://localhost:3000",
-    credentials: true  // This is crucial to allow cookies to be sent
-}))
+// app.use(cors({
+//     origin: 'http://127.0.0.1:5500', // Replace with your frontend's address
+//     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow specific HTTP methods
+//     credentials: true, // Allow cookies or authentication headers to be sent
+// }));
 
-//for json body
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }))
+mongoose.connect(process.env.DB_URL).then(() => {
+  console.log("database connected successfully");
+});
 
-//cookies parser
-app.use(cookieParser())
+let server = app.listen(process.env.PORT, () => {
+  console.log(`server started on ${process.env.PORT}`);
+});
 
-app.set("view engine", "ejs")
-app.use("/v1", routes)
-
-app.use("/", staticRoute)
-//connect database 
-dbConnect();
-
-http.createServer(app).listen(process.env.PORT, () => {
-    console.log(`server started on ${process.env.PORT}`);
-})
+process.on("unhandledRejection", (err) => {
+  console.log("UNHANDLED REJECTION! Shutting down...");
+  console.log(err.name, err.message);
+  server.close(() => {
+    process.exit(1);
+  });
+});

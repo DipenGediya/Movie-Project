@@ -15,6 +15,6 @@ let castSchema = new mongoose.Schema({
     }    
 })
 
-let cast = mongoose.model("castSchema",castSchema)
+let Cast = mongoose.model("Cast",castSchema)
 
-module.exports = cast
+module.exports = Cast

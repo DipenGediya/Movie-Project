@@ -17,5 +17,5 @@ let moviesSchema = new mongoose.Schema({
         type: String,
     }
 })
-let movies = mongoose.model("moviesSchema", moviesSchema);
-module.exports = movies
+let Movie = mongoose.model("Movie", moviesSchema);
+module.exports = Movie

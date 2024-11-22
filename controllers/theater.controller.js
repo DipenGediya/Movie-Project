@@ -1,62 +1,47 @@
-const { theaterService } = require("../services");
+const Theater = require("../models/theater.model");
+const AppError = require("../utils/appError");
+const catchAsync = require("../utils/catchAsync");
 
-let post_theater = async (req, res) => {
-    try {
-        let body = req.body;
-        let duplicate = await theaterService.findTheaterByName(body.name);
-        if (duplicate) {
-            throw new Error("Theater already created")
-        }
-        let theater = await theaterService.post_theater(body)
-        res.status(201).json({
-            message: "theater create success",
-            theater
-        })
-    } catch (error) {
-        res.status(500).json({ error: error.message })
-    }
-}
+let post_theater = catchAsync(async (req, res, next) => {
+  let body = req.body;
+  let duplicate = await Theater.findOne({ name: body.name });
+  if (duplicate) {
+    return next(new AppError("Theater already created", 400));
+  }
+  let theater = await Theater.create(body);
+  res.status(201).json({
+    message: "theater create success",
+    theater,
+  });
+});
 
-let get_theater = async (req, res) => {
-    try {
-        let theater = await theaterService.get_theater()
-        res.status(200).json({
-            message: "Theater get success",
-            theater
-        })
-    } catch (error) {
-        res.status(500).json({ error: error })
-    }
-}
+let get_theater = catchAsync(async (req, res, next) => {
+  let theater = await Theater.find();
+  res.status(200).json({
+    message: "Theater get success",
+    theater,
+  });
+});
 
-let delete_theater = async (req, res) => {
-    try {
-        let { id } = req.params;
-        let theater = await theaterService.findByIdAndDelete(id)
-        res.status(200).json({
-            message: "Theater delete success",
-            theater
-        })
-    } catch (error) {
-        res.status(500).json({ error: error })
-    }
-}
+let delete_theater = catchAsync(async (req, res, next) => {
+  let { id } = req.params;
+  let theater = await Theater.findByIdAndDelete(id);
+  res.status(200).json({
+    message: "Theater delete success",
+    theater,
+  });
+});
 
-let update_theater = async (req, res) => {
-    try {
-        let { id } = req.params;
-        let body = req.body;
-        let theater = await theaterService.findByIdAndUpdate(id, body);
-        let newBody = {
-            id,
-            ...body
-        }
-        res.status(200).json({
-            message: "Thater update successfully",
-            newBody
-        })
-    } catch (error) {
-        res.status(500).json({ error: error })
-    }
-}
-module.exports = { post_theater, get_theater, delete_theater, update_theater }
+let update_theater = catchAsync(async (req, res, next) => {
+  let { id } = req.params;
+  let body = req.body;
+  let theater = await Theater.findByIdAndUpdate(id, body, {
+    new: true,
+    runValidators: true,
+  });
+  res.status(200).json({
+    message: "Thater update successfully",
+    theater
+  });
+});
+module.exports = { post_theater, get_theater, delete_theater, update_theater };

@@ -1,76 +1,58 @@
-const { moviesService } = require("../services");
-const uploadImage = require("../services/cloudinary.service");
+const Movie = require("../models/movies.model");
+const catchAsync = require("../utils/catchAsync");
+const uploadImage = require("../utils/cloudinary");
 
-let postMovies = async (req, res) => {
-    try {
-        let body = req.body;
-        let { path, originalname } = req.file;
-        let cloud = await uploadImage(path, originalname)
-        let newBody = {
-            ...body,
-            poster: cloud.url
-        }
-        let result = await moviesService.postMovies(newBody)
-        // res.status(201).json({
-        //     message: "movies create success",
-        //     result
-        // })
+let postMovies = catchAsync(async (req, res, next) => {
+  let body = req.body;
+  let { path, originalname } = req.file;
+  let cloud = await uploadImage(path, originalname);
+  let newBody = {
+    ...body,
+    poster: cloud.url,
+  };
+  let result = await Movie.create(newBody);
+  // res.status(201).json({
+  //     message: "movies create success",
+  //     result
+  // })
 
-        res.redirect("/")
-    } catch (error) {
-        res.status(500).json({ error: error.message })
-    }
-}
+  res.redirect("/");
+});
 
-let getAllMovies = async (req, res) => {
-    try {
-        let result = await moviesService.getAllMovies()
-        console.log(result, "for movies");
-        res.status(200).json({
-            message: "get movies success",
-            result
-        })
-    } catch (error) {
-        res.status(500).json({ error: error })
-    }
-}
+let getAllMovies = catchAsync(async (req, res, next) => {
+  let result = await Movie.find();
+  res.status(200).json({
+    message: "get movies success",
+    result,
+  });
+});
 
-let deleteMovies = async (req, res) => {
-    try {
-        let { id } = req.params;
-        let result = await moviesService.findByIdAndDelete(id)
-        res.status(200).json({
-            message: "delete movies success",
-            result,
-        })
-    } catch (error) {
-        res.status(500).json({ error: error })
-    }
-}
+let deleteMovies = catchAsync(async (req, res, next) => {
+  let { id } = req.params;
+  let result = await Movie.findByIdAndDelete(id);
+  res.status(200).json({
+    message: "delete movies success",
+    result,
+  });
+});
 
-let updateMovies = async (req, res) => {
-    try {
-        let { id } = req.params;
-        let body = req.body;
-        let { path ,originalname } = req.file;
-        let cloud = await uploadImage(path,originalname)
-        let newBody = {
-            ...body,
-            poster: cloud.url
-        };
-        let secondNewBody = {
-            id,
-            ...newBody
-        };
-        let result = await moviesService.findByIdAndUpdate(id, newBody)
-        // console.log(result,"update movies"); 
-        res.status(200).json({
-            message: "update movies success",
-            secondNewBody,
-        })
-    } catch (error) {
-        res.status(500).json({ error: error.message })
-    }
-}
+let updateMovies = catchAsync(async (req, res, next) => {
+  let { id } = req.params;
+  let body = req.body;
+  let { path, originalname } = req.file;
+  let cloud = await uploadImage(path, originalname);
+  let newBody = {
+    ...body,
+    poster: cloud.url,
+  };
+  let result = await Movie.findByIdAndUpdate(id, newBody, {
+    new: true,
+    runValidators: true,
+  });
+  res.status(200).json({
+    message: "update movies success",
+    result,
+  });
+});
 
-module.exports = { postMovies, getAllMovies, deleteMovies, updateMovies }
+module.exports = { postMovies, getAllMovies, deleteMovies, updateMovies };
