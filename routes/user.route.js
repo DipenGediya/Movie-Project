@@ -8,14 +8,14 @@ route.post("/login", authController.login);
 route.get(
   "/get",
   authController.protect,
-  authController.restrictTo("admin"),
+  // authController.restrictTo("admin"),
   userController.getAllUser
 );
 route.post("/forgotPassword", authController.forgotPassword);
 route.patch("/resetPassword/:token", authController.resetPassword);
 route.patch('/updatePassword',authController.protect,authController.updatePassword)
 
-route.delete("/delete/:id", userController.deleteUSer);
-route.put("/update/:id", userController.updateUser);
+route.delete("/deleteMe/:id", userController.deleteMe);
+route.patch("/updateMe/:id", userController.updateMe);
 
 module.exports = route;

@@ -11,19 +11,27 @@ let postMovies = catchAsync(async (req, res, next) => {
     poster: cloud.url,
   };
   let result = await Movie.create(newBody);
-  // res.status(201).json({
-  //     message: "movies create success",
-  //     result
-  // })
+  res.status(201).json({
+    message: "movies create success",
+    result,
+  });
 
-  res.redirect("/");
+  // res.redirect("/");
 });
 
 let getAllMovies = catchAsync(async (req, res, next) => {
-  let result = await Movie.find();
+  console.log(req.query);
+  const queryObj = { ...req.query };
+  const excludingFields = ["page", "sort", "limit", "fields"];
+  excludingFields.forEach((val) => {
+    delete queryObj[val];
+  });
+
+  let movies = await Movie.find(queryObj);
   res.status(200).json({
     message: "get movies success",
-    result,
+    result: movies.length,
+    movies,
   });
 });
 

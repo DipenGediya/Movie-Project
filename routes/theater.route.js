@@ -1,13 +1,12 @@
-let express = require("express")
-const validate = require("../middleware/validate")
-const { theaterValidation } = require("../validation")
-const theaterController  = require("../controllers/theater.controller")
+let express = require("express");
 
-let route = express()
+const theaterController = require("../controllers/theater.controller");
 
-route.post("/create",validate(theaterValidation.theater),theaterController.post_theater);
-route.get("/get",theaterController.get_theater);
-route.delete("/delete/:id",theaterController.delete_theater);
-route.put("/update/:id",validate(theaterValidation.theater),theaterController.update_theater)
+let route = express();
 
-module.exports = route
+route.post("/create", theaterController.post_theater);
+route.get("/get", theaterController.get_theater);
+route.delete("/delete/:id", theaterController.delete_theater);
+route.put("/update/:id", theaterController.update_theater);
+
+module.exports = route;

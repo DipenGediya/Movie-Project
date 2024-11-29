@@ -18,15 +18,15 @@ let bookingSchema = new mongoose.Schema({
   },
   movies: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "moviesSchema",
+    ref: "Movie",
   },
   theater: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "theaterSchema",
+    ref: "Theater",
   },
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "userSchema",
+    ref: "User",
   },
 });
 
