@@ -1,4 +1,5 @@
 const Movie = require("../models/movies.model");
+const ApiFeature = require("../utils/apiFeature");
 const catchAsync = require("../utils/catchAsync");
 const uploadImage = require("../utils/cloudinary");
 
@@ -20,14 +21,13 @@ let postMovies = catchAsync(async (req, res, next) => {
 });
 
 let getAllMovies = catchAsync(async (req, res, next) => {
-  console.log(req.query);
-  const queryObj = { ...req.query };
-  const excludingFields = ["page", "sort", "limit", "fields"];
-  excludingFields.forEach((val) => {
-    delete queryObj[val];
-  });
+  const features = new ApiFeature(Movie.find(), req.query)
+    .filter()
+    .sort()
+    .limitFields()
+    .pagination();
 
-  let movies = await Movie.find(queryObj);
+  const movies = await features.query;
   res.status(200).json({
     message: "get movies success",
     result: movies.length,

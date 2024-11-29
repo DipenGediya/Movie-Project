@@ -1,6 +1,7 @@
 const Booking = require("../models/booking.model");
 const Movie = require("../models/movies.model");
 const User = require("../models/user.model");
+const ApiFeature = require("../utils/apiFeature");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
 const sendEmail = require("../utils/email");
@@ -33,8 +34,16 @@ let post_booking = catchAsync(async (req, res, next) => {
   });
 });
 
-let get_booking = catchAsync(async (req, res,next) => {
-  let booking = await Booking.find();
+let get_booking = catchAsync(async (req, res, next) => {
+  const features = new ApiFeature(
+    Booking.find().populate("movies theater user"),
+    req.query
+  )
+    .filter()
+    .sort()
+    .limitFields()
+    .pagination();
+  let booking = await features.query;
   res.status(200).json({
     message: "Get booking successfully",
     booking,
